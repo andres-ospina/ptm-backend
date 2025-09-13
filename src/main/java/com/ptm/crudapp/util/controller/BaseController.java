@@ -4,6 +4,8 @@ import com.ptm.crudapp.util.common.Constant;
 import com.ptm.crudapp.util.dto.response.RestResponseDto;
 import com.ptm.crudapp.util.service.BaseService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,7 +15,7 @@ import java.util.List;
 @RestController
 public abstract class BaseController<E, K extends Serializable> extends BaseRestController{
 
-
+    private static final Logger logger   = LoggerFactory.getLogger(BaseController.class);
 
     protected BaseService<E, K> genericService;
 
@@ -34,8 +36,8 @@ public abstract class BaseController<E, K extends Serializable> extends BaseRest
     }
 
     @CrossOrigin(origins = "*", maxAge = 3600)
-    @GetMapping(path = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public RestResponseDto<E> read(@PathVariable K id, @RequestHeader(value = Constant.CONTENT_TYPE) String contentType,HttpServletRequest request) {
+    @GetMapping(path = "/{id}")
+    public RestResponseDto<E> read(@PathVariable K id) {
         return doFindId(id);
 
     }
@@ -51,12 +53,9 @@ public abstract class BaseController<E, K extends Serializable> extends BaseRest
     }
 
     @CrossOrigin(origins = "*", maxAge = 3600)
-    @GetMapping( consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public RestResponseDto<List<E>> readAll(@RequestHeader(value = Constant.CONTENT_TYPE) String contentType, HttpServletRequest request) {
-
+    @GetMapping()
+    public RestResponseDto<List<E>> readAll() {
         return doFindAll();
-
-
     }
 
     private RestResponseDto<List<E>> doFindAll() {
@@ -82,16 +81,15 @@ public abstract class BaseController<E, K extends Serializable> extends BaseRest
 
 
     @CrossOrigin(origins = "*", maxAge = 3600)
-    @DeleteMapping(path = "/{id}",  consumes = MediaType.APPLICATION_JSON_VALUE, produces = {MediaType.APPLICATION_JSON_VALUE})
-    public RestResponseDto<E>  delete(@RequestHeader(value = Constant.CONTENT_TYPE) String contentType,
-                                      @PathVariable K id,
+    @DeleteMapping(path = "/{id}")
+    public RestResponseDto<E>  delete(@PathVariable K id,
                                       HttpServletRequest request) {
 
-        return doDelete(id,contentType,request);
+        return doDelete(id,request);
 
     }
 
-    private RestResponseDto<E> doDelete(K id, String contentType, HttpServletRequest request) {
+    private RestResponseDto<E> doDelete(K id, HttpServletRequest request) {
 
         try{
             genericService.deleteById(id);
@@ -107,10 +105,10 @@ public abstract class BaseController<E, K extends Serializable> extends BaseRest
 
         E entity;
         try {
-            //logger.trace("JSON: {}", json);
+            logger.trace("JSON: {}", json);
             entity = gson.fromJson(json, getTClass());
         } catch (Exception e) {
-            //logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return procesarJsonToBeanException(request, json, null);
         }
 
@@ -124,11 +122,11 @@ public abstract class BaseController<E, K extends Serializable> extends BaseRest
         E entity;
 
         try {
-            //logger.trace("JSON: {}", json);
+            logger.trace("JSON: {}", json);
             entity = gson.fromJson(json, getTClass());
 
         } catch (Exception e) {
-            //logger.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             return procesarJsonToBeanException(request, json, null);
         }
 
