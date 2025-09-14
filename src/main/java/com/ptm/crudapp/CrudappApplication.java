@@ -10,6 +10,4 @@ public class CrudappApplication {
 		SpringApplication.run(CrudappApplication.class, args);
 	}
 
-
-
 }
